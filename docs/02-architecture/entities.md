@@ -7,6 +7,7 @@
 - Пользователь (id, логин, роль, ФИО, контакты)
 - Услуга (id, patient_id, вид услуги, сумма, статус)
 
+
 ## ERD-схема
 
 ![ERD-сущностная модель](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/nanamestnikoff/medical-documentation-system-design/main/docs/02-architecture/diagrams/entities.puml)
