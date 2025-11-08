@@ -14,8 +14,8 @@
 
 ---
 
-## Диаграмма компонентов
+## Диаграмма контейнеров
 
-![Диаграмма компонентов](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/namestnikoff/medical-documentation-system-design/main/docs/02-architecture/diagrams/components.puml)
+![Диаграмма контейнеров](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/namestnikoff/medical-documentation-system-design/main/docs/02-architecture/diagrams/containers.puml)
 
-[Исходный код диаграммы](diagrams/components.puml)
+[Исходный код диаграммы](diagrams/containers.puml)
