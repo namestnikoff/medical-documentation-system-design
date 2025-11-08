@@ -2,73 +2,78 @@
 !theme plain
 title Трассировка требований\nМедицинская информационная система
 
-' Стили
-skinparam packageStyle rectangle
+' Явное определение цветов для компонентов
 skinparam component {
-  BackgroundColor<<business>> LightBlue
-  BackgroundColor<<functional>> LightGreen
-  BackgroundColor<<nonfunctional>> LightYellow
+  BackgroundColor White
   BorderColor Black
   FontSize 11
+  ArrowColor Black
 }
 
-package "Бизнес-требования" <<business>> {
-  [BR-001:\nАвтоматизация\nдокументооборота] as BR1
-  [BR-002:\nСоответствие\nзаконодательству] as BR2
-  [BR-003:\nУчет платных\nуслуг] as BR3
-  [BR-004:\nМедицинская\nстатистика] as BR4
-  [BR-005:\nБезопасность\nПДн] as BR5
+skinparam package {
+  BackgroundColor White
+  BorderColor Black
+  FontSize 12
+  FontStyle bold
 }
 
-package "Функциональные требования" <<functional>> {
-  [FR-001:\nРегистрация\nпациентов] as FR1
-  [FR-003:\nВедение\nприемов] as FR3
-  [FR-005:\nСоздание\nСЭМД] as FR5
-  [FR-006:\nЭлектронная\nподпись] as FR6
-  [FR-008:\nИнтеграция\nс ЕГИСЗ] as FR8
-  [FR-009:\nПлатные\nуслуги] as FR9
-  [FR-011:\nСтатистика\nи отчеты] as FR11
-  [FR-013:\nУправление\nпользователями] as FR13
-  [FR-016:\nЖурнал\nаудита] as FR16
+package "Бизнес-требования" #LightBlue {
+  component "BR-001:\nАвтоматизация\nдокументооборота" as BR1 #LightBlue
+  component "BR-002:\nСоответствие\nзаконодательству" as BR2 #LightBlue
+  component "BR-003:\nУчет платных\nуслуг" as BR3 #LightBlue
+  component "BR-004:\nМедицинская\nстатистика" as BR4 #LightBlue
+  component "BR-005:\nБезопасность\nПДн" as BR5 #LightBlue
 }
 
-package "Нефункциональные требования" <<nonfunctional>> {
-  [NFR-001:\nПроизводительность\n< 200ms] as NFR1
-  [NFR-002:\nДоступность\n99.9%] as NFR2
-  [NFR-003:\nМасштабируемость\n20000 приемов/день] as NFR3
-  [NFR-004:\nБезопасность\n152-ФЗ] as NFR4
+package "Функциональные требования" #LightGreen {
+  component "FR-001:\nРегистрация\nпациентов" as FR1 #LightGreen
+  component "FR-003:\nВедение\nприемов" as FR3 #LightGreen
+  component "FR-005:\nСоздание\nСЭМД" as FR5 #LightGreen
+  component "FR-006:\nЭлектронная\nподпись" as FR6 #LightGreen
+  component "FR-008:\nИнтеграция\nс ЕГИСЗ" as FR8 #LightGreen
+  component "FR-009:\nПлатные\nуслуги" as FR9 #LightGreen
+  component "FR-011:\nСтатистика\nи отчеты" as FR11 #LightGreen
+  component "FR-013:\nУправление\nпользователями" as FR13 #LightGreen
+  component "FR-016:\nЖурнал\nаудита" as FR16 #LightGreen
+}
+
+package "Нефункциональные требования" #LightYellow {
+  component "NFR-001:\nПроизводительность\n< 200ms" as NFR1 #LightYellow
+  component "NFR-002:\nДоступность\n99.9%" as NFR2 #LightYellow
+  component "NFR-003:\nМасштабируемость\n20000 приемов/день" as NFR3 #LightYellow
+  component "NFR-004:\nБезопасность\n152-ФЗ" as NFR4 #LightYellow
 }
 
 ' Связи бизнес-требований с функциональными
-BR1 --> FR1
-BR1 --> FR3
-BR1 --> FR5
-BR1 --> FR6
+BR1 -down-> FR1
+BR1 -down-> FR3
+BR1 -down-> FR5
+BR1 -down-> FR6
 
-BR2 --> FR5
-BR2 --> FR6
-BR2 --> FR8
+BR2 -down-> FR5
+BR2 -down-> FR6
+BR2 -down-> FR8
 
-BR3 --> FR9
+BR3 -down-> FR9
 
-BR4 --> FR11
+BR4 -down-> FR11
 
-BR5 --> FR13
-BR5 --> FR16
+BR5 -down-> FR13
+BR5 -down-> FR16
 
 ' Связи функциональных с нефункциональными
-FR1 --> NFR1 : поиск
-FR3 --> NFR1 : создание\nдокумента
-FR5 --> NFR3 : масштаб
-FR8 --> NFR2 : надежность
-FR13 --> NFR4 : доступ
-FR16 --> NFR4 : аудит
+FR1 -down-> NFR1 : поиск
+FR3 -down-> NFR1 : создание\nдокумента
+FR5 -down-> NFR3 : масштаб
+FR8 -down-> NFR2 : надежность
+FR13 -down-> NFR4 : доступ
+FR16 -down-> NFR4 : аудит
 
 legend right
   |= Цвет |= Тип требований |
-  | <back:LightBlue>   </back> | Бизнес-требования |
-  | <back:LightGreen>   </back> | Функциональные требования |
-  | <back:LightYellow>   </back> | Нефункциональные требования |
+  | <back:#LightBlue>   </back> | Бизнес-требования |
+  | <back:#LightGreen>   </back> | Функциональные требования |
+  | <back:#LightYellow>   </back> | Нефункциональные требования |
 endlegend
 
 @enduml
