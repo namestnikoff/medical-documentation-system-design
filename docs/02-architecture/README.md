@@ -5,6 +5,7 @@
 Система строится по сервисно-ориентированной архитектуре: компоненты независимы, общаются через REST API, интегрируются с обязательными внешними государственными сервисами (ЕГИСЗ, ЕСИА). Все данные хранятся централизованно.
 
 ### Внешние зависимости
+
 - ЕГИСЗ — приём и отправка медицинских документов (СЭМД)
 - ЕСИА — гос. аутентификация пользователей (врачи, пациенты, администраторы)
 - Федеральные справочники (МКБ-10, ФРМО, ФРМР, ЖНВЛП) — для корректного обмена в стандартах
@@ -13,9 +14,8 @@
 
 ---
 
-
 ## Диаграмма компонентов
 
-![Диаграмма компонентов](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/nanamestnikoff/medical-documentation-system-design/main/docs/02-architecture/diagrams/components.puml)
+![Диаграмма компонентов](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/namestnikoff/medical-documentation-system-design/main/docs/02-architecture/diagrams/components.puml)
 
 [Исходный код диаграммы](diagrams/components.puml)
