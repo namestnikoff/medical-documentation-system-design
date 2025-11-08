@@ -1,21 +1,27 @@
-# Data Layer
+# Слой данных
 
-## Logical Model
-- Key entities: Patient, Doctor, MedicalDocument, Appointment, Service, Signature, DataEvent.
+Раздел описывает логическую модель данных, используемую в системе автоматизации медицинских документов.
 
-## Database rationale
-- Primary DBMS: PostgreSQL.
-- Rationale: transactions, scalability, medical domain adoption.
+## Основные сущности
 
-## GraphQL Example
-```graphql
-type Patient {
-  id: ID!
-  fio: String!
-  appointments: [Appointment]
-  documents: [MedicalDocument]
-}
-type Query {
-}
-```
+- Пациент (Patient)
+- Врач (Doctor)
+- Приём (Appointment)
+- МедДокумент (MedicalDocument)
+- Подпись (Signature)
+- Событие обмена (DataEvent)
 
+## Диаграмма связей
+
+![Диаграмма сущностей слоя данных](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/namestnikoff/medical-documentation-system-design/main/docs/03-data-layer/diagrams/entities.puml)
+
+[Исходный код диаграммы](diagrams/entities.puml)
+
+## Обоснование выбора СУБД
+
+В качестве основной СУБД используется PostgreSQL — обеспечивает транзакционность, поддерживает сложные связи и текстовый поиск, соответствует требованиям по хранению медицинских и персональных данных.
+
+## Дополнительная информация
+
+- Для интеграции предусмотрен слой GraphQL, агрегирующий данные из микросервисов.
+- Все изменения документов и подписей проходят аудит и versioning.

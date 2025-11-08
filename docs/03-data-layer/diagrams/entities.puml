@@ -1,0 +1,37 @@
+@startuml
+entity "Пациент" as Patient {
+  * id : UUID
+  * ФИО : String
+  * дата_рождения : Date
+}
+entity "Врач" as Doctor {
+  * id : UUID
+  * ФИО : String
+  * специальность : String
+}
+entity "Приём" as Appointment {
+  * id : UUID
+  * дата : DateTime
+  * тип : String
+}
+entity "МедДокумент" as MedicalDocument {
+  * id : UUID
+  * тип : String
+  * статус : String
+}
+entity "Подпись" as Signature {
+  * id : UUID
+  * дата : DateTime
+}
+entity "СобытиеОбмена" as DataEvent {
+  * id : UUID
+  * тип : String
+  * дата : DateTime
+}
+
+Patient ||--o{ Appointment
+Doctor  ||--o{ Appointment
+Appointment ||--o{ MedicalDocument
+MedicalDocument ||--o{ Signature
+MedicalDocument ||--o{ DataEvent
+@enduml
