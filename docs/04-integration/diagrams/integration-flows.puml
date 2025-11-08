@@ -1,0 +1,17 @@
+@startuml
+!define RECTANGLE class
+
+RECTANGLE "Frontend" as FE
+RECTANGLE "GraphQL API Gateway" as GraphQL
+RECTANGLE "Patient Service" as PatientService
+RECTANGLE "Document Service" as DocumentService
+RECTANGLE "Kafka Cluster" as Kafka
+RECTANGLE "Federal Storage" as FederalStorage
+
+FE --> GraphQL : Queries & Mutations
+GraphQL --> PatientService : REST/GRPC requests
+GraphQL --> DocumentService : REST/GRPC requests
+DocumentService -> Kafka : DocumentCreated event
+Kafka -> FederalStorage : Event notification & document push
+
+@enduml

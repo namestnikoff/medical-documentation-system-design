@@ -1,12 +1,34 @@
-# Integration
+# Интеграционный профиль
 
-## REST API sample
-- /api/patient/{id}
-- /api/document/{id}
+## Обзор
+
+Обмен данными в системе строится на едином брокере сообщений — Apache Kafka, дополняющем REST и GraphQL интерфейсы для синхронных запросов.
+
+## REST API
+
+- Чётко определённые эндпоинты для CRUD операций с пациентами, приёмами и документами.
+- Описаны с помощью OpenAPI (Swagger), что облегчает поддержку и тестирование.
 
 ## GraphQL API
-- Unified data queries for analytics and UI.
 
-## Async flow
-- Event: DocumentCreated sent to message queue.
+- Обеспечивает гибкий агрегационный доступ к данным.
+- Поддержка запросов с фильтрацией и подписок на обновления данных.
 
+## Kafka как единый Event Bus
+
+- Все события бизнес-процессов (например, DocumentCreated, DocumentSigned) публикуются в Kafka.
+- Это обеспечивает надежность, масштабируемость и упорядоченность обработки данных.
+- Интеграция с Debezium читает WAL PostgreSQL и публикует изменения для последующей синхронизации с OpenSearch.
+- Асинхронные микросервисы подписываются на нужные топики, обеспечивая реактивную обработку.
+
+## Масштабируемость и устойчивость
+
+- Используется масштабируемый кластер Kafka.
+- Мониторинг потоков, отложенная обработка неудачных сообщений.
+- Распределённый характер интеграций позволяет обеспечить отказоустойчивость.
+
+## Диаграмма потоков данных
+
+![Диаграмма интеграции](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/namestnikoff/medical-documentation-system-design/main/docs/04-integration/diagrams/integration-flows.puml)
+
+[Исходный код диаграммы](diagrams/integration-flows.puml)
