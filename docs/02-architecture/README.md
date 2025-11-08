@@ -16,6 +16,6 @@
 
 ## Диаграмма компонентов
 
-![Архитектурная диаграмма](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/nanamestnikoff/medical-documentation-system-design/main/docs/02-architecture/diagrams/components.puml)
+![Диаграмма компонентов](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/nanamestnikoff/medical-documentation-system-design/main/docs/02-architecture/diagrams/components.puml)
 
 [Исходный код диаграммы](diagrams/components.puml)
