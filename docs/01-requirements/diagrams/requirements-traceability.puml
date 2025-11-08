@@ -1,0 +1,74 @@
+@startuml
+!theme plain
+title Трассировка требований\nМедицинская информационная система
+
+' Стили
+skinparam packageStyle rectangle
+skinparam component {
+  BackgroundColor<<business>> LightBlue
+  BackgroundColor<<functional>> LightGreen
+  BackgroundColor<<nonfunctional>> LightYellow
+  BorderColor Black
+  FontSize 11
+}
+
+package "Бизнес-требования" <<business>> {
+  [BR-001:\nАвтоматизация\nдокументооборота] as BR1
+  [BR-002:\nСоответствие\nзаконодательству] as BR2
+  [BR-003:\nУчет платных\nуслуг] as BR3
+  [BR-004:\nМедицинская\nстатистика] as BR4
+  [BR-005:\nБезопасность\nПДн] as BR5
+}
+
+package "Функциональные требования" <<functional>> {
+  [FR-001:\nРегистрация\nпациентов] as FR1
+  [FR-003:\nВедение\nприемов] as FR3
+  [FR-005:\nСоздание\nСЭМД] as FR5
+  [FR-006:\nЭлектронная\nподпись] as FR6
+  [FR-008:\nИнтеграция\nс ЕГИСЗ] as FR8
+  [FR-009:\nПлатные\nуслуги] as FR9
+  [FR-011:\nСтатистика\nи отчеты] as FR11
+  [FR-013:\nУправление\nпользователями] as FR13
+  [FR-016:\nЖурнал\nаудита] as FR16
+}
+
+package "Нефункциональные требования" <<nonfunctional>> {
+  [NFR-001:\nПроизводительность\n< 200ms] as NFR1
+  [NFR-002:\nДоступность\n99.9%] as NFR2
+  [NFR-003:\nМасштабируемость\n20000 приемов/день] as NFR3
+  [NFR-004:\nБезопасность\n152-ФЗ] as NFR4
+}
+
+' Связи бизнес-требований с функциональными
+BR1 --> FR1
+BR1 --> FR3
+BR1 --> FR5
+BR1 --> FR6
+
+BR2 --> FR5
+BR2 --> FR6
+BR2 --> FR8
+
+BR3 --> FR9
+
+BR4 --> FR11
+
+BR5 --> FR13
+BR5 --> FR16
+
+' Связи функциональных с нефункциональными
+FR1 --> NFR1 : поиск
+FR3 --> NFR1 : создание\nдокумента
+FR5 --> NFR3 : масштаб
+FR8 --> NFR2 : надежность
+FR13 --> NFR4 : доступ
+FR16 --> NFR4 : аудит
+
+legend right
+  |= Цвет |= Тип требований |
+  | <back:LightBlue>   </back> | Бизнес-требования |
+  | <back:LightGreen>   </back> | Функциональные требования |
+  | <back:LightYellow>   </back> | Нефункциональные требования |
+endlegend
+
+@enduml
