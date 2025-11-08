@@ -1,31 +1,3 @@
 @startuml
-!theme plain
-title Сущностная модель (ERD)
-
-entity "Пациент" as patient {
-  id PK
-  ФИО
-  СНИЛС
-  полис
-  дата_рождения
-  телефон
-}
-entity "Приём" as appointment {
-  id PK
-  patient_id FK
-  врач
-  дата
-  диагноз
-  назначения
-}
-entity "Документ" as document {
-  id PK
-  appointment_id FK
-  тип
-  статус
-  файл
-  подпись
-}
-patient ||--o{ appointment
-appointment ||--o{ document
+Alice -> Bob: Hello
 @enduml
