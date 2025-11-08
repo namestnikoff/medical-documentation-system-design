@@ -1,0 +1,112 @@
+topics:
+  - name: PatientCreated
+    description: Событие создания нового пациента в системе
+    payload:
+      id: string
+      firstName: string
+      middleName: string
+      lastName: string
+      birthDate: string
+      email: string
+      eventTimestamp: string
+
+  - name: PatientUpdated
+    description: Событие обновления данных пациента
+    payload:
+      id: string
+      updatedFields: object
+      eventTimestamp: string
+
+  - name: PatientDeleted
+    description: Событие удаления пациента
+    payload:
+      id: string
+      eventTimestamp: string
+
+  - name: AppointmentScheduled
+    description: Событие записи на приём
+    payload:
+      id: string
+      patientId: string
+      doctorId: string
+      scheduledDate: string
+      status: string
+
+  - name: DocumentCreated
+    description: Событие создания документа пациента
+    payload:
+      id: string
+      patientId: string
+      type: string
+      createdAt: string
+      contentUri: string
+
+  - name: ErrorOccurred
+    description: Событие ошибки в обработке бизнес-событий
+    payload:
+      errorCode: string
+      errorMessage: string
+      relatedEvent: string
+      eventTimestamp: string
+
+schemas:
+  Patient:
+    type: object
+    properties:
+      id:
+        type: string
+      firstName:
+        type: string
+      middleName:
+        type: string
+      lastName:
+        type: string
+      birthDate:
+        type: string
+        format: date
+      email:
+        type: string
+        format: email
+
+  Appointment:
+    type: object
+    properties:
+      id:
+        type: string
+      patientId:
+        type: string
+      doctorId:
+        type: string
+      scheduledDate:
+        type: string
+        format: date-time
+      status:
+        type: string
+
+  Document:
+    type: object
+    properties:
+      id:
+        type: string
+      patientId:
+        type: string
+      type:
+        type: string
+      createdAt:
+        type: string
+        format: date-time
+      contentUri:
+        type: string
+
+  Error:
+    type: object
+    properties:
+      errorCode:
+        type: string
+      errorMessage:
+        type: string
+      relatedEvent:
+        type: string
+      eventTimestamp:
+        type: string
+        format: date-time

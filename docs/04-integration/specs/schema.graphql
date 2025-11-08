@@ -1,0 +1,74 @@
+"""
+Тип пациента с разбивкой ФИО
+"""
+type Patient {
+  id: ID!
+  firstName: String!
+  middleName: String
+  lastName: String!
+  birthDate: String
+  email: String
+}
+
+"""
+Вход для создания пациента с отдельными полями ФИО
+"""
+input PatientCreateInput {
+  firstName: String!
+  middleName: String
+  lastName: String!
+  birthDate: String
+  email: String
+}
+
+"""
+Вход для обновления пациента
+"""
+input PatientUpdateInput {
+  firstName: String
+  middleName: String
+  lastName: String
+  birthDate: String
+  email: String
+}
+
+"""
+Тип ошибки
+"""
+type Error {
+  code: String!
+  message: String!
+}
+
+"""
+Результат мутации создания пациента
+"""
+type PatientCreatePayload {
+  patient: Patient
+  error: Error
+}
+
+"""
+Результат мутации обновления пациента
+"""
+type PatientUpdatePayload {
+  patient: Patient
+  error: Error
+}
+
+"""
+Результат мутации удаления пациента
+"""
+type PatientDeletePayload {
+  success: Boolean!
+  error: Error
+}
+
+"""
+Мутации
+"""
+type Mutation {
+  createPatient(input: PatientCreateInput!): PatientCreatePayload
+  updatePatient(id: ID!, input: PatientUpdateInput!): PatientUpdatePayload
+  deletePatient(id: ID!): PatientDeletePayload
+}
