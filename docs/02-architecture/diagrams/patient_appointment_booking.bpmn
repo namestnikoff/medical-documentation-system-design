@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_02oq47i" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.31.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.6.0">
+  <bpmn:process id="PatientAppointmentProcess" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="Пациент открывает приложение">
+      <bpmn:outgoing>Flow_0start_login</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Activity_0login" name="Авторизация пациента">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0start_login</bpmn:incoming>
+      <bpmn:outgoing>Flow_1login_authcheck</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Activity_1authcheck" name="Проверка учетных данных">
+      <bpmn:incoming>Flow_1login_authcheck</bpmn:incoming>
+      <bpmn:outgoing>Flow_2authcheck_gateway</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_1auth" name="Авторизация успешна?">
+      <bpmn:incoming>Flow_2authcheck_gateway</bpmn:incoming>
+      <bpmn:outgoing>Flow_3auth_success</bpmn:outgoing>
+      <bpmn:outgoing>Flow_4auth_failed</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Activity_2select" name="Выбор врача и времени">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_3auth_success</bpmn:incoming>
+      <bpmn:incoming>Flow_13retry_selection</bpmn:incoming>
+      <bpmn:outgoing>Flow_5select_checkslot</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Activity_3checkslot" name="Проверка доступности слота">
+      <bpmn:incoming>Flow_5select_checkslot</bpmn:incoming>
+      <bpmn:outgoing>Flow_6checkslot_gateway</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_2slot" name="Слот доступен?">
+      <bpmn:incoming>Flow_6checkslot_gateway</bpmn:incoming>
+      <bpmn:outgoing>Flow_7slot_available</bpmn:outgoing>
+      <bpmn:outgoing>Flow_8slot_unavailable</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Activity_4create" name="Создание записи">
+      <bpmn:incoming>Flow_7slot_available</bpmn:incoming>
+      <bpmn:outgoing>Flow_9create_publish</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_5publish" name="Отправка события в Kafka">
+      <bpmn:incoming>Flow_9create_publish</bpmn:incoming>
+      <bpmn:outgoing>Flow_10publish_notify</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_6notify" name="Уведомление пациента">
+      <bpmn:incoming>Flow_10publish_notify</bpmn:incoming>
+      <bpmn:outgoing>Flow_11notify_success</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Event_1success" name="Запись создана успешно">
+      <bpmn:incoming>Flow_11notify_success</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="Event_2authfailed" name="Ошибка авторизации">
+      <bpmn:incoming>Flow_4auth_failed</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="Gateway_3retry" name="Попробовать другой слот/врача?">
+      <bpmn:incoming>Flow_8slot_unavailable</bpmn:incoming>
+      <bpmn:outgoing>Flow_12user_givesup</bpmn:outgoing>
+      <bpmn:outgoing>Flow_13retry_selection</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="Event_3usergivesup" name="Пользователь завершил поиск">
+      <bpmn:incoming>Flow_12user_givesup</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0start_login" sourceRef="StartEvent_1" targetRef="Activity_0login" />
+    <bpmn:sequenceFlow id="Flow_1login_authcheck" sourceRef="Activity_0login" targetRef="Activity_1authcheck" />
+    <bpmn:sequenceFlow id="Flow_2authcheck_gateway" sourceRef="Activity_1authcheck" targetRef="Gateway_1auth" />
+    <bpmn:sequenceFlow id="Flow_3auth_success" name="Успех" sourceRef="Gateway_1auth" targetRef="Activity_2select" />
+    <bpmn:sequenceFlow id="Flow_4auth_failed" name="Ошибка" sourceRef="Gateway_1auth" targetRef="Event_2authfailed" />
+    <bpmn:sequenceFlow id="Flow_5select_checkslot" sourceRef="Activity_2select" targetRef="Activity_3checkslot" />
+    <bpmn:sequenceFlow id="Flow_6checkslot_gateway" sourceRef="Activity_3checkslot" targetRef="Gateway_2slot" />
+    <bpmn:sequenceFlow id="Flow_7slot_available" name="Доступен" sourceRef="Gateway_2slot" targetRef="Activity_4create" />
+    <bpmn:sequenceFlow id="Flow_8slot_unavailable" name="Занят" sourceRef="Gateway_2slot" targetRef="Gateway_3retry" />
+    <bpmn:sequenceFlow id="Flow_9create_publish" sourceRef="Activity_4create" targetRef="Activity_5publish" />
+    <bpmn:sequenceFlow id="Flow_10publish_notify" sourceRef="Activity_5publish" targetRef="Activity_6notify" />
+    <bpmn:sequenceFlow id="Flow_11notify_success" sourceRef="Activity_6notify" targetRef="Event_1success" />
+    <bpmn:sequenceFlow id="Flow_12user_givesup" name="Нет" sourceRef="Gateway_3retry" targetRef="Event_3usergivesup" />
+    <bpmn:sequenceFlow id="Flow_13retry_selection" name="Да" sourceRef="Gateway_3retry" targetRef="Activity_2select" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="PatientAppointmentProcess">
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="172" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0login_di" bpmnElement="Activity_0login">
+        <dc:Bounds x="250" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1authcheck_di" bpmnElement="Activity_1authcheck">
+        <dc:Bounds x="400" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1auth_di" bpmnElement="Gateway_1auth" isMarkerVisible="true">
+        <dc:Bounds x="545" y="95" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="537" y="57.5" width="66" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_2select_di" bpmnElement="Activity_2select">
+        <dc:Bounds x="635" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_3checkslot_di" bpmnElement="Activity_3checkslot">
+        <dc:Bounds x="775" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_2slot_di" bpmnElement="Gateway_2slot" isMarkerVisible="true">
+        <dc:Bounds x="915" y="95" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="899" y="71" width="82" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_3usergivesup_di" bpmnElement="Event_3usergivesup" bioc:stroke="#6b3c00" bioc:fill="#ffe0b2" color:background-color="#ffe0b2" color:border-color="#6b3c00">
+        <dc:Bounds x="922" y="352" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="899" y="391" width="83" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_3retry_di" bpmnElement="Gateway_3retry" isMarkerVisible="true">
+        <dc:Bounds x="915" y="245" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="975" y="250" width="68" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_4create_di" bpmnElement="Activity_4create">
+        <dc:Bounds x="1015" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_5publish_di" bpmnElement="Activity_5publish">
+        <dc:Bounds x="1155" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_6notify_di" bpmnElement="Activity_6notify">
+        <dc:Bounds x="1295" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1success_di" bpmnElement="Event_1success" bioc:stroke="#205022" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#205022">
+        <dc:Bounds x="1435" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1413" y="138" width="81" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_2authfailed_di" bpmnElement="Event_2authfailed" bioc:stroke="#831311" bioc:fill="#ffcdd2" color:background-color="#ffcdd2" color:border-color="#831311">
+        <dc:Bounds x="552" y="352" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="538" y="392" width="65" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0start_login_di" bpmnElement="Flow_0start_login">
+        <di:waypoint x="208" y="120" />
+        <di:waypoint x="250" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1login_authcheck_di" bpmnElement="Flow_1login_authcheck">
+        <di:waypoint x="350" y="120" />
+        <di:waypoint x="400" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2authcheck_gateway_di" bpmnElement="Flow_2authcheck_gateway">
+        <di:waypoint x="500" y="120" />
+        <di:waypoint x="545" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3auth_success_di" bpmnElement="Flow_3auth_success">
+        <di:waypoint x="595" y="120" />
+        <di:waypoint x="635" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="597" y="95" width="30" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4auth_failed_di" bpmnElement="Flow_4auth_failed">
+        <di:waypoint x="570" y="145" />
+        <di:waypoint x="570" y="352" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="579" y="173" width="41" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5select_checkslot_di" bpmnElement="Flow_5select_checkslot">
+        <di:waypoint x="735" y="120" />
+        <di:waypoint x="775" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_6checkslot_gateway_di" bpmnElement="Flow_6checkslot_gateway">
+        <di:waypoint x="875" y="120" />
+        <di:waypoint x="915" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_7slot_available_di" bpmnElement="Flow_7slot_available">
+        <di:waypoint x="965" y="120" />
+        <di:waypoint x="1015" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="962" y="95" width="48" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_8slot_unavailable_di" bpmnElement="Flow_8slot_unavailable">
+        <di:waypoint x="940" y="145" />
+        <di:waypoint x="940" y="245" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="943" y="173" width="30" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12user_givesup_di" bpmnElement="Flow_12user_givesup">
+        <di:waypoint x="940" y="295" />
+        <di:waypoint x="940" y="352" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="948" y="318" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13retry_selection_di" bpmnElement="Flow_13retry_selection">
+        <di:waypoint x="915" y="270" />
+        <di:waypoint x="685" y="270" />
+        <di:waypoint x="685" y="160" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="873" y="253" width="14" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_9create_publish_di" bpmnElement="Flow_9create_publish">
+        <di:waypoint x="1115" y="120" />
+        <di:waypoint x="1155" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10publish_notify_di" bpmnElement="Flow_10publish_notify">
+        <di:waypoint x="1255" y="120" />
+        <di:waypoint x="1295" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11notify_success_di" bpmnElement="Flow_11notify_success">
+        <di:waypoint x="1395" y="120" />
+        <di:waypoint x="1435" y="120" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
