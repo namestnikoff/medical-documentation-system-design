@@ -1,0 +1,71 @@
+@startuml
+title Бронирование записи на приём (детально)
+
+actor Пациент
+participant "Веб-приложение\n(Front)" as Web
+participant "API Gateway" as API
+participant "Auth Service" as AuthService
+participant "Doctor Service" as DoctorService
+participant "Appointment Service" as AppointmentService
+participant "БД" as DB
+participant "Kafka" as Kafka
+
+== Выбор врача и времени ==
+Пациент -> Web: Выбирает врача и время приёма
+
+Web -> API: POST /appointments\nAuthorization: Bearer {token}\n{doctorId, date, time}
+
+== Проверка токена ==
+API -> AuthService: Валидация JWT токена
+alt Токен действителен
+    AuthService --> API: 200 OK {userId, role}
+else Токен недействителен
+    AuthService --> API: 401 Unauthorized
+    API --> Web: 401 Unauthorized\n{error: "Invalid token"}
+    Web --> Пациент: Ошибка: требуется\nповторная авторизация
+    note right: Процесс завершён
+end
+
+== Проверка врача ==
+API -> DoctorService: GET /doctors/{doctorId}
+DoctorService -> DB: SELECT * FROM doctors\nWHERE id = ?
+
+alt Врач найден
+    DB --> DoctorService: Данные врача
+    DoctorService --> API: 200 OK {doctor}
+else Врач не найден
+    DB --> DoctorService: Нет данных
+    DoctorService --> API: 404 Not Found
+    API --> Web: 404 Not Found\n{error: "Doctor not found"}
+    Web --> Пациент: Ошибка: врач не найден
+    note right: Процесс завершён
+end
+
+== Проверка доступности слота ==
+API -> AppointmentService: Создать запись
+AppointmentService -> DB: SELECT * FROM appointments\nWHERE doctorId = ? AND date = ? AND time = ?
+
+alt Слот свободен
+    DB --> AppointmentService: Нет записей
+    
+    == Создание записи ==
+    AppointmentService -> DB: INSERT INTO appointments\n(patientId, doctorId, date, time, status)
+    DB --> AppointmentService: Запись создана {appointmentId}
+    
+    == Публикация события ==
+    AppointmentService -> Kafka: Publish "AppointmentScheduled"\n{appointmentId, patientId, doctorId, date, time}
+    Kafka --> AppointmentService: Событие отправлено
+    
+    AppointmentService --> API: 201 Created\n{appointmentId, date, time}
+    API --> Web: 201 Created\n{appointmentId}
+    Web --> Пациент: Подтверждение записи
+    
+else Слот занят
+    DB --> AppointmentService: Запись существует
+    AppointmentService --> API: 409 Conflict\n{error: "Time slot already booked"}
+    API --> Web: 409 Conflict
+    Web --> Пациент: Ошибка: время занято,\nвыберите другое время
+    note right: Пациент выбирает\nновое время
+end
+
+@enduml

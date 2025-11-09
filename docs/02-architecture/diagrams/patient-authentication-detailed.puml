@@ -1,0 +1,40 @@
+@startuml
+title Авторизация пациента (детально)
+
+actor Пациент
+participant "Веб-приложение\n(Front)" as Web
+participant "API Gateway" as API
+participant "Auth Service" as AuthService
+participant "БД" as DB
+
+== Авторизация ==
+Пациент -> Web: Вводит email и пароль
+Web -> API: POST /auth/login\n{email, password}
+
+API -> AuthService: Проверка учётных данных
+AuthService -> DB: SELECT * FROM users\nWHERE email = ?
+DB --> AuthService: Данные пользователя
+
+alt Пользователь найден
+    AuthService -> AuthService: Проверка хеша пароля (bcrypt)
+    
+    alt Пароль верный
+        AuthService -> AuthService: Генерация JWT токенов
+        note right: accessToken (15 мин)\nrefreshToken (7 дней)
+        AuthService --> API: 200 OK\n{accessToken, refreshToken}
+        API --> Web: 200 OK\n{accessToken, refreshToken}
+        Web -> Web: Сохранение токенов
+        Web --> Пациент: Успешный вход в систему
+    else Пароль неверный
+        AuthService --> API: 401 Unauthorized\n{error: "Invalid credentials"}
+        API --> Web: 401 Unauthorized
+        Web --> Пациент: Ошибка: неверный пароль,\nповторите ввод
+    end
+    
+else Пользователь не найден
+    AuthService --> API: 401 Unauthorized\n{error: "User not found"}
+    API --> Web: 401 Unauthorized
+    Web --> Пациент: Ошибка: неверный email
+end
+
+@enduml
